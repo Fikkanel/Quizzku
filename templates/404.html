@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}404 - Not Founf{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="text-4xl font-bold mb-4">404 - Not Founf</h1>
+    <p class="mb-4">Maaf, terjadi kesalahan pada server. Silakan coba beberapa saat lagi.</p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Kembali ke Beranda</a>
+</div>
+{% endblock %}

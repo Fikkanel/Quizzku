@@ -1,0 +1,166 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Hasil Ujian Siswa</h2>
+
+    {% if quiz_results %}
+        {% for quiz in quiz_results %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">{{ quiz.title }}</h5>
+                    <div>
+                        <button type="button" class="btn btn-danger btn-sm me-2" 
+                                onclick="confirmResetAll('{{ quiz.title|replace(' ', '-') }}')">
+                            Reset Semua Siswa
+                        </button>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                                data-bs-target="#detailModal-{{ quiz.title|replace(' ', '-') }}">
+                            Lihat Siswa
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Mata Pelajaran:</strong> {{ quiz.subject }} <br>
+                        <strong>Tanggal:</strong> {{ quiz.date }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal untuk menampilkan detail siswa -->
+            <div class="modal fade" id="detailModal-{{ quiz.title|replace(' ', '-') }}" tabindex="-1">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Siswa yang Mengerjakan {{ quiz.title }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            {% if quiz.students %}
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Siswa</th>
+                                            <th>Nilai</th>
+                                            <th>Status</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for student in quiz.students %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td>{{ student.student_name }}</td>
+                                                <td>{{ "%.2f"|format(student.score) }}</td>
+                                                <td>
+                                                    {% if student.score >= 70 %}
+                                                        <span class="badge bg-success">Lulus</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Tidak Lulus</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-warning btn-sm" 
+                                                            onclick="confirmResetStudent('{{ student.student_id }}', '{{ quiz.title|replace(' ', '-') }}')">
+                                                        Reset
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    Belum ada siswa yang mengerjakan quiz ini.
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            Belum ada hasil ujian yang tersedia.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmResetAll(quizTitle) {
+    showAlert.confirm(
+        "Apakah Anda yakin ingin mereset semua hasil quiz ini?",
+        function() {
+            // Close any open modals first
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if(bsModal) bsModal.hide();
+            });
+            
+            // Send reset request
+            fetch(`/reset_quiz/${quizTitle}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert.success("Berhasil mereset semua hasil quiz", function() {
+                        window.location.reload();
+                    });
+                } else {
+                    showAlert.error(data.message || "Gagal mereset hasil quiz");
+                }
+            })
+            .catch(error => {
+                showAlert.error("Terjadi kesalahan saat mereset hasil quiz");
+            });
+        }
+    );
+}
+
+function confirmResetStudent(studentId, quizTitle) {
+    showAlert.confirm(
+        "Apakah Anda yakin ingin mereset hasil quiz siswa ini?",
+        function() {
+            // Close any open modals first
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if(bsModal) bsModal.hide();
+            });
+            
+            // Send reset request
+            fetch(`/reset_student_quiz/${studentId}/${quizTitle}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert.success("Berhasil mereset hasil quiz siswa", function() {
+                        window.location.reload();
+                    });
+                } else {
+                    showAlert.error(data.message || "Gagal mereset hasil quiz siswa");
+                }
+            })
+            .catch(error => {
+                showAlert.error("Terjadi kesalahan saat mereset hasil quiz siswa");
+            });
+        }
+    );
+}
+</script>
+{% endblock %}

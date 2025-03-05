@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="create-quiz-container">
+    <div class="container mx-auto px-4">
+        <h2 class="text-2xl font-bold mb-6">Edit Quiz</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="create-quiz-form">
+            <div class="form-group">
+                <label for="title" class="form-label">Judul Quiz</label>
+                <input type="text" 
+                       id="title" 
+                       name="title" 
+                       class="form-control"
+                       value="{{ quiz.title }}" 
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="subject" class="form-label">Mata Pelajaran</label>
+                <select id="subject" name="subject" class="form-control" required>
+                    <option value="">Pilih Mata Pelajaran</option>
+                    <option value="Matematika" {% if quiz.subject == 'Matematika' %}selected{% endif %}>Matematika</option>
+                    <option value="Bahasa Indonesia" {% if quiz.subject == 'Bahasa Indonesia' %}selected{% endif %}>Bahasa Indonesia</option>
+                    <option value="Bahasa Inggris" {% if quiz.subject == 'Bahasa Inggris' %}selected{% endif %}>Bahasa Inggris</option>
+                    <option value="IPA" {% if quiz.subject == 'IPA' %}selected{% endif %}>IPA</option>
+                    <option value="IPS" {% if quiz.subject == 'IPS' %}selected{% endif %}>IPS</option>
+                    <option value="Fisika" {% if quiz.subject == 'Fisika' %}selected{% endif %}>Fisika</option>
+                    <option value="Kimia" {% if quiz.subject == 'Kimia' %}selected{% endif %}>Kimia</option>
+                    <option value="Biologi" {% if quiz.subject == 'Biologi' %}selected{% endif %}>Biologi</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="form-label">Deskripsi Quiz</label>
+                <textarea id="description" 
+                          name="description" 
+                          class="form-control" 
+                          rows="4">{{ quiz.description }}</textarea>
+            </div>
+
+            <div class="button-group">
+                <a href="{{ url_for('manage_quizzes') }}" class="btn btn-secondary">Batal</a>
+                <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.create-quiz-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #D1D5DB;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #3B82F6;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #2563EB;
+}
+
+.btn-secondary {
+    background-color: #9CA3AF;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #6B7280;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background-color: #DEF7EC;
+    color: #03543F;
+}
+
+.alert-error {
+    background-color: #FDE8E8;
+    color: #9B1C1C;
+}
+
+@media (max-width: 640px) {
+    .create-quiz-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

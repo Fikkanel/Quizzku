@@ -1,0 +1,356 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="dashboard-content">
+    <div class="welcome-section">
+        <h1>Selamat Datang, {{ user.username }} 👋</h1>
+        <p>Dashboard Guru</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Quiz</h3>
+                <p class="stat-number">{{ total_quizzes }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Total Siswa</h3>
+                <p class="stat-number">{{ total_students }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h2>Aksi Cepat</h2>
+        <div class="action-grid">
+            <a href="{{ url_for('create_quiz') }}" class="action-card create">
+                <div class="action-icon">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <span>Buat Quiz Baru</span>
+            </a>
+
+            <a href="{{ url_for('manage_quizzes') }}" class="action-card manage">
+                <div class="action-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <span>Kelola Quiz</span>
+            </a>
+
+            <a href="{{ url_for('student_results') }}" class="action-card results">
+                <div class="action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <span>Hasil Siswa</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Quizzes -->
+    <div class="recent-quizzes">
+        <div class="section-header">
+            <h2>Quiz Terbaru</h2>
+            <a href="{{ url_for('manage_quizzes') }}" class="btn-view-all">Lihat Semua</a>
+        </div>
+
+        {% if recent_quizzes %}
+        <div class="table-responsive">
+            <table class="quiz-table">
+                <thead>
+                    <tr>
+                        <th>Nama Quiz</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in recent_quizzes %}
+                    <tr>
+                        <td class="quiz-title">{{ quiz.title }}</td>
+                        <td>{{ quiz.subject }}</td>
+                        <td>{{ quiz.created_at.strftime('%d %B %Y') }}</td>
+                        <td class="quiz-actions">
+                            <a href="{{ url_for('view_quiz', quiz_title=quiz.title) }}" class="btn-action view">
+                                <i class="fas fa-eye"></i> Lihat
+                            </a>
+                            <a href="{{ url_for('edit_quiz', quiz_title=quiz.title) }}" class="btn-action edit">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <p>Belum ada quiz yang dibuat</p>
+            <a href="{{ url_for('create_quiz') }}" class="btn-create">
+                <i class="fas fa-plus"></i> Buat Quiz Pertama
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.dashboard-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f0f2f5;
+    min-height: calc(100vh - 64px);
+}
+
+.welcome-section {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.welcome-section h1 {
+    font-size: 2rem;
+    color: #202124;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-section p {
+    color: #5f6368;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+.stat-icon.blue {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+}
+
+.stat-icon.green {
+    background-color: #e6f4ea;
+    color: #1e8e3e;
+}
+
+.stat-info h3 {
+    color: #5f6368;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #202124;
+}
+
+.quick-actions {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.quick-actions h2 {
+    color: #202124;
+    margin-bottom: 1rem;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.action-card.create {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+}
+
+.action-card.manage {
+    background-color: #fce8f3;
+    color: #c71585;
+}
+
+.action-card.results {
+    background-color: #e6f4ea;
+    color: #1e8e3e;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    filter: brightness(0.95);
+}
+
+.action-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.recent-quizzes {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.btn-view-all {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.quiz-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.quiz-table th,
+.quiz-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.quiz-table th {
+    color: #5f6368;
+    font-weight: 500;
+    background-color: #f8f9fa;
+}
+
+.quiz-title {
+    font-weight: 500;
+    color: #202124;
+}
+
+.btn-action {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-action i {
+    margin-right: 0.5rem;
+}
+
+.btn-action.view {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+}
+
+.btn-action.edit {
+    background-color: #e6f4ea;
+    color: #1e8e3e;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #5f6368;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: #dadce0;
+    margin-bottom: 1rem;
+}
+
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #1a73e8;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-top: 1rem;
+    transition: background-color 0.2s;
+}
+
+.btn-create:hover {
+    background-color: #1557b0;
+}
+
+@media (max-width: 768px) {
+    .dashboard-content {
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quiz-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+</style>
+{% endblock %}

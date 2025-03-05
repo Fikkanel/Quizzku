@@ -1,0 +1,19 @@
+{
+    "title": "123",
+    "subject": "mtk",
+    "description": "asfasf",
+    "created_by": "teacher",
+    "created_at": "2025-01-01 16:45:07",
+    "questions": [
+        {
+            "question_text": "1",
+            "options": {
+                "A": "1",
+                "B": "2",
+                "C": "3",
+                "D": "4"
+            },
+            "correct_answer": "A"
+        }
+    ]
+}

@@ -1,0 +1,248 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="quiz-container">
+    <div class="quiz-header text-center">
+        <h1>{{ quiz.title }}</h1>
+        <p class="subject">{{ quiz.subject }}</p>
+        <div class="progress mb-3">
+            <div class="progress-bar" role="progressbar" style="width: 0%" id="progress-bar"></div>
+        </div>
+        <div class="question-counter mb-3">
+            Soal <span id="current-question">1</span> dari {{ questions|length }}
+        </div>
+    </div>
+
+    <form id="quizForm" onsubmit="submitQuiz(event)">
+        <input type="hidden" name="quiz_title" value="{{ quiz.title }}">
+        
+        {% for question in questions %}
+        <div class="question-card" id="question-{{ loop.index0 }}" style="{{ 'display: none;' if not loop.first else '' }}">
+            <div class="question-header">
+                <h4>Pertanyaan {{ loop.index }}</h4>
+            </div>
+            <p class="question-text">{{ question.question_text }}</p>
+            <div class="options-grid">
+                <div class="option" onclick="selectOption(this, '{{ loop.index0 }}', 'A')" data-value="A">
+                    {{ question.options.A }}
+                </div>
+                <div class="option" onclick="selectOption(this, '{{ loop.index0 }}', 'B')" data-value="B">
+                    {{ question.options.B }}
+                </div>
+                <div class="option" onclick="selectOption(this, '{{ loop.index0 }}', 'C')" data-value="C">
+                    {{ question.options.C }}
+                </div>
+                <div class="option" onclick="selectOption(this, '{{ loop.index0 }}', 'D')" data-value="D">
+                    {{ question.options.D }}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="navigation-buttons">
+            <button type="button" class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" style="display: none;">
+                <i class="bi bi-arrow-left"></i> Sebelumnya
+            </button>
+            <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">
+                Selanjutnya <i class="bi bi-arrow-right"></i>
+            </button>
+            <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                Selesai <i class="bi bi-check-lg"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.quiz-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.quiz-header {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.quiz-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.progress {
+    height: 6px;
+    border-radius: 3px;
+}
+
+.question-counter {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.question-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.question-header h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.question-text {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Grid Layout untuk Opsi */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.option {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.option:hover {
+    border-color: #1a73e8;
+    background-color: #f8f9fa;
+}
+
+.option.selected {
+    background-color: #1a73e8;
+    border-color: #1557b0;
+    color: white;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .option {
+        min-height: 50px;
+    }
+}
+</style>
+
+<script>
+let currentQuestion = 0;
+const totalQuestions = {{ questions|length }};
+const answers = {};
+
+function updateUI() {
+    const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+    document.getElementById('progress-bar').style.width = `${progress}%`;
+    document.getElementById('current-question').textContent = currentQuestion + 1;
+    
+    document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'block' : 'none';
+    document.getElementById('nextBtn').style.display = currentQuestion < totalQuestions - 1 ? 'block' : 'none';
+    document.getElementById('submitBtn').style.display = currentQuestion === totalQuestions - 1 ? 'block' : 'none';
+    
+    document.querySelectorAll('.question-card').forEach((card, index) => {
+        card.style.display = index === currentQuestion ? 'block' : 'none';
+    });
+
+    if (answers[currentQuestion]) {
+        const selectedOption = document.querySelector(`#question-${currentQuestion} .option[data-value="${answers[currentQuestion]}"]`);
+        if (selectedOption) {
+            selectedOption.classList.add('selected');
+        }
+    }
+}
+
+function selectOption(element, questionIndex, value) {
+    element.closest('.question-card').querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    element.classList.add('selected');
+    answers[questionIndex] = value;
+}
+
+function nextQuestion() {
+    if (currentQuestion < totalQuestions - 1) {
+        if (!answers[currentQuestion]) {
+            alert('Silakan pilih jawaban terlebih dahulu');
+            return;
+        }
+        currentQuestion++;
+        updateUI();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestion > 0) {
+        currentQuestion--;
+        updateUI();
+    }
+}
+
+function submitQuiz(event) {
+    event.preventDefault();
+    if (Object.keys(answers).length < totalQuestions) {
+        alert('Silakan jawab semua pertanyaan terlebih dahulu');
+        return;
+    }
+    
+    const quizTitle = document.querySelector('input[name="quiz_title"]').value;
+    
+    fetch('/submit_quiz', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            quiz_title: quizTitle,
+            answers: answers
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert(data.message || 'Terjadi kesalahan saat mengirim jawaban');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat mengirim jawaban');
+    });
+}
+
+updateUI();
+</script>
+{% endblock %}

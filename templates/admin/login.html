@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Check if already logged in on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/check_session');
+                const data = await response.json();
+                
+                if (data.valid) {
+                    // Redirect based on role
+                    if (data.role === 'admin') {
+                        window.location.href = '/admin/dashboard';
+                    } else if (data.role === 'teacher') {
+                        window.location.href = '/teacher_dashboard';
+                    } else {
+                        window.location.href = '/student_dashboard';
+                    }
+                }
+            } catch (error) {
+                console.error('Session check failed:', error);
+            }
+        });
+    </script>
+</head>
+<body class="bg-gradient-to-b from-gray-100 to-gray-200">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full space-y-8 bg-white rounded-2xl shadow-lg p-6 sm:p-10">
+            <!-- Logo/Brand Area -->
+            <div class="text-center">
+                <div class="mx-auto w-16 h-16 mb-4 bg-indigo-600 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-3xl text-white"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">
+                    Admin Portal
+                </h2>
+                <p class="mt-2 text-sm text-gray-600">
+                    Please login to access admin dashboard
+                </p>
+            </div>
+
+            <!-- Login Form -->
+            <form class="mt-8 space-y-6" id="loginForm">
+                <!-- Username Field -->
+                <div class="rounded-md">
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input id="username" name="username" type="text" required 
+                                class="appearance-none relative block w-full px-3 py-3 pl-10
+                                border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg
+                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                text-base sm:text-sm transition-colors duration-200"
+                                placeholder="Enter your username">
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input id="password" name="password" type="password" required
+                                class="appearance-none relative block w-full px-3 py-3 pl-10
+                                border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg
+                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                                text-base sm:text-sm transition-colors duration-200"
+                                placeholder="Enter your password">
+                            <button type="button" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                onclick="togglePassword()">
+                                <i id="passwordToggle" class="fas fa-eye text-gray-400 hover:text-gray-600"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="remember-me" name="remember-me" type="checkbox"
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer">
+                        <label for="remember-me" class="ml-2 block text-sm text-gray-900 cursor-pointer">
+                            Remember me
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit" 
+                        class="group relative w-full flex justify-center py-3 px-4 
+                        text-sm font-medium rounded-lg text-white bg-indigo-600 
+                        hover:bg-indigo-700 focus:outline-none focus:ring-2 
+                        focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-sign-in-alt text-indigo-500 group-hover:text-indigo-400 
+                            transition-colors duration-200"></i>
+                        </span>
+                        Sign in
+                    </button>
+                </div>
+            </form>
+
+            <!-- Alert Box -->
+            <div id="alertBox" class="hidden mt-4 p-4 rounded-lg text-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordToggle = document.getElementById('passwordToggle');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.classList.remove('fa-eye');
+                passwordToggle.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.classList.remove('fa-eye-slash');
+                passwordToggle.classList.add('fa-eye');
+            }
+        }
+
+        // Completely disable browser back navigation
+window.addEventListener('load', function() {
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', function() {
+        window.history.pushState(null, '', window.location.href);
+        alert('Please use the logout button to exit the dashboard.');
+    });
+});
+        
+        // Form submission handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const alertBox = document.getElementById('alertBox');
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            // Disable submit button and show loading state
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>`;
+            
+            try {
+                const response = await fetch('/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'username': document.getElementById('username').value,
+                        'password': document.getElementById('password').value,
+                        'remember-me': document.getElementById('remember-me').checked
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success message before redirect
+                    alertBox.textContent = 'Login successful! Redirecting...';
+                    alertBox.className = 'mt-4 p-4 rounded-lg bg-green-100 text-green-700 text-sm';
+                    alertBox.style.display = 'block';
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                    alertBox.textContent = data.message || 'Invalid credentials';
+                    alertBox.className = 'mt-4 p-4 rounded-lg bg-red-100 text-red-700 text-sm';
+                    alertBox.style.display = 'block';
+                    
+                    // Reset submit button
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = `
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-sign-in-alt text-indigo-500 group-hover:text-indigo-400"></i>
+                        </span>
+                        Sign in`;
+                }
+            } catch (error) {
+                alertBox.textContent = 'An error occurred. Please try again.';
+                alertBox.className = 'mt-4 p-4 rounded-lg bg-red-100 text-red-700 text-sm';
+                alertBox.style.display = 'block';
+                
+                // Reset submit button
+                submitButton.disabled = false;
+                submitButton.innerHTML = `
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-sign-in-alt text-indigo-500 group-hover:text-indigo-400"></i>
+                    </span>
+                    Sign in`;
+            }
+        });
+    </script>
+</body>
+</html>

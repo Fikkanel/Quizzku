@@ -1,0 +1,274 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="manage-quizzes-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Kelola Quiz</h1>
+            <p class="text-secondary">Kelola semua quiz yang telah Anda buat</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ url_for('create_quiz') }}" class="btn-create">
+                <i class="fas fa-plus-circle"></i>
+                <span>Buat Quiz Baru</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="content-card">
+        {% if quizzes %}
+        <div class="table-responsive">
+            <table class="quizzes-table">
+                <thead>
+                    <tr>
+                        <th>Nama Quiz</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Tanggal Dibuat</th>
+                        <th>Total Soal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in quizzes %}
+                    <tr>
+                        <td>
+                            <div class="quiz-title">{{ quiz.title }}</div>
+                        </td>
+                        <td>
+                            <span class="subject-badge">{{ quiz.subject }}</span>
+                        </td>
+                        <td>
+                            <div class="date-info">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>{{ quiz.get('created_at', 'Tidak ada data') }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="total-questions">{{ quiz['stats']['total_questions'] }} Soal</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('view_quiz', quiz_title=quiz.title) }}" class="btn-action view" title="Lihat Quiz">
+    								<i class="fas fa-eye"></i>
+								</a>
+                                <a href="{{ url_for('edit_quiz', quiz_title=quiz.title) }}" class="btn-action edit" title="Edit Quiz">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="confirmDelete('{{ url_for('delete_quiz', quiz_title=quiz.title) }}')" 
+                                        class="btn-action delete" title="Hapus Quiz">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h3>Belum Ada Quiz</h3>
+            <p>Mulai dengan membuat quiz pertama Anda</p>
+            <a href="{{ url_for('create_quiz') }}" class="btn-create">
+                <i class="fas fa-plus-circle"></i>
+                <span>Buat Quiz Baru</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.manage-quizzes-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header-content h1 {
+    font-size: 1.875rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.text-secondary {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.btn-create {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-create:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-create i {
+    margin-right: 0.5rem;
+}
+
+.content-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.quizzes-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.quizzes-table th {
+    background-color: #f9fafb;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 500;
+    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.quizzes-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.quiz-title {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.subject-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #e5e7eb;
+    color: #4b5563;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+}
+
+.date-info {
+    display: flex;
+    align-items: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.date-info i {
+    margin-right: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action.view {
+    background-color: #e0f2fe;
+    color: #0284c7;
+}
+
+.btn-action.view:hover {
+    background-color: #bae6fd;
+}
+
+.btn-action.edit {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+
+.btn-action.edit:hover {
+    background-color: #dcfce7;
+}
+
+.btn-action.delete {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.btn-action.delete:hover {
+    background-color: #fee2e2;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .quizzes-table {
+        min-width: 640px;
+    }
+}
+</style>
+
+<script>
+function confirmDelete(url) {
+    if (confirm('Apakah Anda yakin ingin menghapus quiz ini?')) {
+        window.location.href = url;
+    }
+}
+</script>
+{% endblock %}

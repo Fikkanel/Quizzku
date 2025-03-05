@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+
+{% block title %}Create Quiz - Quizzku{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-label {
+        font-weight: 500;
+    }
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    .required::after {
+        content: "*";
+        color: red;
+        margin-left: 4px;
+    }
+    .quiz-form {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="quiz-form">
+                <h2 class="text-center mb-4">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Create New Quiz
+                </h2>
+
+                <form id="createQuizForm" onsubmit="handleSubmit(event)">
+                    <div class="mb-3">
+                        <label for="title" class="form-label required">Quiz Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required
+                            placeholder="Enter quiz title">
+                        <div class="form-text">Give your quiz a clear, descriptive title</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label required">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required
+                            placeholder="Enter subject (e.g., Mathematics, Science, History)">
+                        <div class="form-text">Specify the subject or topic of your quiz</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"
+                            placeholder="Enter quiz description"></textarea>
+                        <div class="form-text">Provide additional information about the quiz (optional)</div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-arrow-right me-2"></i>Next: Add Questions
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function handleSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = {
+        title: form.title.value.trim(),
+        subject: form.subject.value.trim(),
+        description: form.description.value.trim()
+    };
+
+    try {
+        const response = await fetch("{{ url_for('create_quiz') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showAlert.success(data.message, function() {
+                window.location.href = data.redirect;
+            });
+        } else {
+            showAlert.error(data.message);
+        }
+    } catch (error) {
+        showAlert.error('An error occurred while creating the quiz. Please try again.');
+    }
+}
+
+// Form validation
+document.getElementById('createQuizForm').addEventListener('input', function(e) {
+    const input = e.target;
+    if (input.required && input.value.trim() === '') {
+        input.classList.add('is-invalid');
+    } else {
+        input.classList.remove('is-invalid');
+    }
+});
+</script>
+{% endblock %}

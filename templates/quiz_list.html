@@ -1,0 +1,208 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="quiz-list-container">
+    <div class="page-header">
+        <h1>Daftar Quiz</h1>
+        <p class="text-secondary">Daftar semua quiz yang tersedia</p>
+    </div>
+
+    {% if quizzes %}
+    <div class="quiz-grid">
+        {% for quiz in quizzes %}
+        <div class="quiz-card">
+            <div class="quiz-card-header">
+                <h2>{{ quiz.title }}</h2>
+                <span class="subject-badge">{{ quiz.subject }}</span>
+            </div>
+            <div class="quiz-card-body">
+                <div class="quiz-info">
+                    <p><i class="fas fa-question-circle"></i> {{ quiz.questions|length }} Soal</p>
+                    {% if quiz.title in completed_quiz_titles %}
+                        <p class="completed">
+                            <i class="fas fa-check-circle"></i> Selesai
+                            <span class="score">Nilai: {{ "%.1f"|format(quiz_results[quiz.title].score) }}%</span>
+                        </p>
+                    {% else %}
+                        <p class="available"><i class="fas fa-clock"></i> Belum dikerjakan</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="quiz-card-footer">
+                {% if quiz.title in completed_quiz_titles %}
+                    <a href="{{ url_for('view_result', result_id=quiz_results[quiz.title].id) }}" class="btn-view">
+                        <i class="fas fa-eye"></i> Lihat Hasil
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('take_quiz', quiz_title=quiz.title) }}" class="btn-take">
+                        <i class="fas fa-play"></i> Mulai Quiz
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3>Belum Ada Quiz</h3>
+        <p>Belum ada quiz yang tersedia saat ini</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.quiz-list-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.text-secondary {
+    color: #6b7280;
+}
+
+.quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.quiz-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.quiz-card:hover {
+    transform: translateY(-2px);
+}
+
+.quiz-card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.quiz-card-header h2 {
+    font-size: 1.25rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.subject-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #e5e7eb;
+    color: #4b5563;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+}
+
+.quiz-card-body {
+    padding: 1.5rem;
+}
+
+.quiz-info p {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    color: #6b7280;
+}
+
+.quiz-info i {
+    margin-right: 0.5rem;
+}
+
+.quiz-info .completed {
+    color: #059669;
+}
+
+.quiz-info .score {
+    margin-left: 0.5rem;
+    font-weight: 500;
+}
+
+.quiz-card-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+}
+
+.btn-take, .btn-view {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-take {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-take:hover {
+    background-color: #2563eb;
+}
+
+.btn-view {
+	background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn-view:hover {
+	background-color: rgba(26,115,232,255);
+    color: var(--white);
+}
+
+.btn-take i, .btn-view i {
+    margin-right: 0.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #6b7280;
+}
+
+@media (max-width: 640px) {
+    .quiz-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
